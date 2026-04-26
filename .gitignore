@@ -1,0 +1,17 @@
+# Dependencies
+backend/node_modules
+frontend/node_modules
+
+# Environment variables (NEVER upload this)
+backend/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build
+frontend/build
+
+# OS files
+.DS_Store
+Thumbs.db
