@@ -43,33 +43,57 @@ export default function AdminAddStore() {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Add New Store</h1>
+        <div>
+          <h1 className="page-title">Add New Store</h1>
+          <p className="page-subtitle">Register a new store on the platform</p>
+        </div>
+        <button className="btn btn-secondary btn-sm" onClick={() => navigate('/admin/stores')}>
+          ← Back to Stores
+        </button>
       </div>
+
       <div className="card" style={{ maxWidth: 520 }}>
         <form onSubmit={handleSubmit}>
           {[
-            { name: 'name', label: 'Store Name (20–60 chars)', placeholder: 'Store name...' },
+            { name: 'name', label: 'Store Name', type: 'text', placeholder: 'Enter store name (20–60 chars)', hint: '20–60 characters required' },
             { name: 'email', label: 'Store Email', type: 'email', placeholder: 'store@example.com' },
-            { name: 'address', label: 'Address', placeholder: 'Store address...' },
-          ].map(({ name, label, type = 'text', placeholder }) => (
+            { name: 'address', label: 'Store Address', type: 'text', placeholder: 'Full store address', hint: 'Up to 400 characters' },
+          ].map(({ name, label, type, placeholder, hint }) => (
             <div className="form-group" key={name}>
               <label className="form-label">{label}</label>
-              <input className="form-input" type={type} name={name} value={form[name]} onChange={handleChange} placeholder={placeholder} />
+              <input
+                className="form-input"
+                type={type}
+                name={name}
+                value={form[name]}
+                onChange={handleChange}
+                placeholder={placeholder}
+              />
+              {hint && !errors[name] && (
+                <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>{hint}</p>
+              )}
               {errors[name] && <p className="form-error">{errors[name]}</p>}
             </div>
           ))}
+
           <div className="form-group">
-            <label className="form-label">Assign Owner (optional)</label>
+            <label className="form-label">Assign Owner</label>
             <select className="form-input" name="owner_id" value={form.owner_id} onChange={handleChange}>
               <option value="">— No Owner —</option>
               {owners.map(o => (
                 <option key={o.id} value={o.id}>{o.name} ({o.email})</option>
               ))}
             </select>
+            <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>Optional — can be assigned later</p>
           </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Creating...' : 'Create Store'}</button>
-            <button type="button" className="btn btn-secondary" onClick={() => navigate('/admin/stores')}>Cancel</button>
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Creating...' : 'Create Store'}
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={() => navigate('/admin/stores')}>
+              Cancel
+            </button>
           </div>
         </form>
       </div>

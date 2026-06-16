@@ -13,84 +13,149 @@ export default function OwnerDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{ color: 'var(--text2)', padding: 40 }}>Loading...</div>;
+  if (loading) return (
+    <div className="loading-state" style={{ paddingTop: 80 }}>
+      <div className="spinner" />
+      <span>Loading dashboard...</span>
+    </div>
+  );
   if (!data) return null;
 
-  return (
+  if (!data.store) return (
     <div>
       <div className="page-header">
         <h1 className="page-title">Store Dashboard</h1>
       </div>
+      <div className="card" style={{ textAlign: 'center', padding: '60px 40px' }}>
+        <div style={{ fontSize: 40, marginBottom: 16 }}>◈</div>
+        <h3 style={{ marginBottom: 8 }}>No store assigned</h3>
+        <p style={{ color: 'var(--text2)', fontSize: 14 }}>Contact an administrator to assign a store to your account.</p>
+      </div>
+    </div>
+  );
 
-      {!data.store ? (
-        <div className="card" style={{ textAlign: 'center', padding: 60, color: 'var(--text2)' }}>
-          No store assigned to your account yet. Contact an administrator.
+  const avgRating = parseFloat(data.avg_rating) || 0;
+
+  return (
+    <div>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">{data.store.name}</h1>
+          <p className="page-subtitle">Store performance overview</p>
         </div>
-      ) : (
-        <>
-          {/* Store Info */}
-          <div className="card" style={{ marginBottom: 24 }}>
-            <h2 style={{ fontSize: 22, marginBottom: 16 }}>🏪 {data.store.name}</h2>
-            <div className="stats-grid" style={{ marginBottom: 0 }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 48, fontWeight: 800, fontFamily: 'Syne', color: 'var(--yellow)' }}>
-                  {data.avg_rating || '—'}
-                </div>
-                <div style={{ color: 'var(--text2)', fontSize: 13 }}>Average Rating</div>
-                <div style={{ marginTop: 8 }}>
-                  {[1,2,3,4,5].map(i => (
-                    <span key={i} style={{ color: i <= Math.round(data.avg_rating) ? 'var(--yellow)' : 'var(--border)', fontSize: 22 }}>★</span>
-                  ))}
-                </div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 48, fontWeight: 800, fontFamily: 'Syne', color: 'var(--accent2)' }}>
-                  {data.total_ratings || 0}
-                </div>
-                <div style={{ color: 'var(--text2)', fontSize: 13 }}>Total Ratings</div>
-              </div>
-            </div>
-          </div>
+      </div>
 
-          {/* Raters Table */}
-          <div className="card" style={{ padding: 0 }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
-              <h3 style={{ fontSize: 16 }}>Customers Who Rated</h3>
+      {/* Stats */}
+      <div className="stats-grid" style={{ marginBottom: 28 }}>
+        <div className="stat-card">
+          <span className="stat-icon" style={{ color: 'var(--yellow)' }}>★</span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <div className="stat-value" style={{ color: 'var(--yellow)' }}>
+              {avgRating || '—'}
             </div>
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Customer Name</th>
-                    <th>Email</th>
-                    <th>Rating</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.raters.length === 0 ? (
-                    <tr><td colSpan={4} style={{ textAlign: 'center', color: 'var(--text2)', padding: 40 }}>No ratings yet</td></tr>
-                  ) : data.raters.map(r => (
-                    <tr key={r.id}>
-                      <td style={{ fontWeight: 500 }}>{r.name}</td>
-                      <td style={{ color: 'var(--text2)' }}>{r.email}</td>
-                      <td>
-                        {[1,2,3,4,5].map(i => (
-                          <span key={i} style={{ color: i <= r.rating ? 'var(--yellow)' : 'var(--border)', fontSize: 16 }}>★</span>
-                        ))}
-                        <span style={{ marginLeft: 6, color: 'var(--text2)', fontSize: 13 }}>{r.rating}/5</span>
-                      </td>
-                      <td style={{ color: 'var(--text2)', fontSize: 13 }}>
-                        {new Date(r.rated_at).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {avgRating > 0 && (
+              <span style={{ fontSize: 14, color: 'var(--text2)', fontWeight: 500 }}>/ 5</span>
+            )}
           </div>
-        </>
-      )}
+          <div className="stat-label">Average Rating</div>
+          {avgRating > 0 && (
+            <div style={{ display: 'flex', gap: 3, marginTop: 8 }}>
+              {[1, 2, 3, 4, 5].map(i => (
+                <span key={i} style={{
+                  color: i <= Math.round(avgRating) ? 'var(--yellow)' : 'var(--border)',
+                  fontSize: 16
+                }}>★</span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="stat-card">
+          <span className="stat-icon" style={{ color: 'var(--accent)' }}>◎</span>
+          <div className="stat-value" style={{ color: 'var(--accent)' }}>
+            {data.total_ratings || 0}
+          </div>
+          <div className="stat-label">Total Reviews</div>
+        </div>
+      </div>
+
+      {/* Raters table */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{
+          padding: '16px 20px',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div>
+            <h3 style={{ fontSize: 15, fontWeight: 700 }}>Customer Reviews</h3>
+            <p style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>
+              {data.raters?.length || 0} customers have rated your store
+            </p>
+          </div>
+        </div>
+        <div className="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Rating</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {!data.raters || data.raters.length === 0 ? (
+                <tr>
+                  <td colSpan={4}>
+                    <div className="empty-state">
+                      <span className="empty-state-icon">★</span>
+                      <strong>No reviews yet</strong>
+                      <span>Customers who rate your store will appear here</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : data.raters.map(r => (
+                <tr key={r.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{
+                        width: 30, height: 30, borderRadius: 8,
+                        background: 'var(--bg4)', border: '1px solid var(--border)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 11, fontWeight: 700, flexShrink: 0, color: 'var(--text2)',
+                      }}>
+                        {r.name?.[0]?.toUpperCase()}
+                      </div>
+                      <span style={{ fontWeight: 600, fontSize: 13.5 }}>{r.name}</span>
+                    </div>
+                  </td>
+                  <td style={{ color: 'var(--text2)', fontSize: 13 }}>{r.email}</td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{ display: 'flex', gap: 2 }}>
+                        {[1, 2, 3, 4, 5].map(i => (
+                          <span key={i} style={{
+                            color: i <= r.rating ? 'var(--yellow)' : 'var(--border)',
+                            fontSize: 13
+                          }}>★</span>
+                        ))}
+                      </div>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)' }}>
+                        {r.rating}/5
+                      </span>
+                    </div>
+                  </td>
+                  <td style={{ color: 'var(--text2)', fontSize: 13 }}>
+                    {new Date(r.rated_at).toLocaleDateString('en-US', {
+                      year: 'numeric', month: 'short', day: 'numeric'
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

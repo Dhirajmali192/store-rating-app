@@ -169,16 +169,16 @@ Frontend runs on `http://localhost:3000`
 
 ## 🔐 Default Login Credentials
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@storeapp.com | Admin@123 |
+| Role          | Email                       | Password |
+|---------------|-----------------------------|----------|
+| Admin         | admin@storeapp.com          | Admin@123 |
 | Store Owner 1 | rajesh.sharma@freshmart.com | Owner@123 |
-| Store Owner 2 | priya.mehta@techzone.com | Owner@123 |
+| Store Owner 2 | priya.mehta@techzone.com    | Owner@123 |
 | Store Owner 3 | anil.desai@trendsetters.com | Owner@123 |
-| Normal User 1 | sneha.patil@gmail.com | User@123 |
-| Normal User 2 | rohit.verma@gmail.com | User@123 |
-| Normal User 3 | anjali.singh@gmail.com | User@123 |
-| Normal User 4 | vikram.joshi@gmail.com | User@123 |
+| Normal User 1 | sneha.patil@gmail.com       | User@123 |
+| Normal User 2 | rohit.verma@gmail.com       | User@123 |
+| Normal User 3 | anjali.singh@gmail.com      | User@123 |
+| Normal User 4 | vikram.joshi@gmail.com      | User@123 |
 
 ---
 

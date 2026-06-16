@@ -20,127 +20,122 @@ export default function AdminUserDetail() {
   }, [id, navigate]);
 
   if (loading) return (
-    <div style={{ color: 'var(--text2)', padding: 40, textAlign: 'center' }}>
-      Loading user details...
+    <div className="loading-state" style={{ paddingTop: 80 }}>
+      <div className="spinner" />
+      <span>Loading user details...</span>
     </div>
   );
 
   if (!user) return null;
 
   const roleBadge = (role) => (
-    <span className={`badge badge-${role === 'store_owner' ? 'owner' : role}`}>
+    <span className={`badge badge-${role === 'store_owner' ? 'owner' : role}`} style={{ fontSize: 13 }}>
       {role === 'store_owner' ? 'Store Owner' : role.charAt(0).toUpperCase() + role.slice(1)}
     </span>
   );
 
-  const roleLabel = {
-    admin: 'Administrator',
-    user: 'Normal User',
-    store_owner: 'Store Owner',
-  };
+  const roleLabel = { admin: 'Administrator', user: 'Normal User', store_owner: 'Store Owner' };
+
+  const initials = user.name?.trim().split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+
+  const details = [
+    { label: 'Full Name', value: user.name },
+    { label: 'Email Address', value: user.email },
+    { label: 'Address', value: user.address || 'Not provided' },
+    { label: 'Role', value: roleLabel[user.role] || user.role },
+  ];
 
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">User Details</h1>
+        <div>
+          <h1 className="page-title">User Details</h1>
+          <p className="page-subtitle">Viewing profile information</p>
+        </div>
         <button className="btn btn-secondary btn-sm" onClick={() => navigate('/admin/users')}>
           ← Back to Users
         </button>
       </div>
 
-      <div className="card" style={{ maxWidth: 560 }}>
-
-        {/* Avatar + Name */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20, maxWidth: 560 }}>
+        {/* Profile card */}
+        <div className="card">
+          {/* Header */}
           <div style={{
-            width: 64, height: 64, borderRadius: '50%',
-            background: 'var(--accent)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 26, fontWeight: 700, flexShrink: 0
-          }}>
-            {user.name?.[0]?.toUpperCase()}
-          </div>
-          <div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>{user.name}</h2>
-            {roleBadge(user.role)}
-          </div>
-        </div>
-
-        {/* Details */}
-        {[
-          { label: 'Full Name', value: user.name },
-          { label: 'Email Address', value: user.email },
-          { label: 'Address', value: user.address || 'Not provided' },
-          { label: 'Role', value: roleLabel[user.role] || user.role },
-        ].map(({ label, value }) => (
-          <div key={label} style={{
-            marginBottom: 16,
-            paddingBottom: 16,
-            borderBottom: '1px solid var(--border)'
+            display: 'flex', alignItems: 'center', gap: 16,
+            paddingBottom: 20, marginBottom: 20,
+            borderBottom: '1px solid var(--border)',
           }}>
             <div style={{
-              fontSize: 11,
-              color: 'var(--text2)',
-              marginBottom: 4,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              fontWeight: 600
+              width: 60, height: 60, borderRadius: 14,
+              background: 'linear-gradient(135deg, #4f7cff, #7c5cff)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 22, fontWeight: 700, flexShrink: 0, color: '#fff',
             }}>
-              {label}
+              {initials}
             </div>
-            <div style={{ fontSize: 15 }}>{value}</div>
-          </div>
-        ))}
-
-        {/* Store Rating — only show for Store Owner */}
-        {user.role === 'store_owner' && (
-          <>
-            <div style={{
-              marginBottom: 16,
-              paddingBottom: 16,
-              borderBottom: '1px solid var(--border)'
-            }}>
-              <div style={{
-                fontSize: 11, color: 'var(--text2)', marginBottom: 8,
-                textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600
-              }}>
-                Store Name
-              </div>
-              <div style={{ fontSize: 15 }}>
-                {user.store_name || 'No store assigned'}
-              </div>
-            </div>
-
             <div>
-              <div style={{
-                fontSize: 11, color: 'var(--text2)', marginBottom: 8,
-                textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600
-              }}>
-                Store Average Rating
-              </div>
-              {user.avg_rating ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div>
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <span key={i} style={{
-                        color: i <= Math.round(user.avg_rating) ? 'var(--yellow)' : 'var(--border)',
-                        fontSize: 24
-                      }}>★</span>
-                    ))}
-                  </div>
-                  <span style={{ fontSize: 20, fontWeight: 700, fontFamily: 'Syne' }}>
-                    {user.avg_rating}
-                  </span>
-                  <span style={{ color: 'var(--text2)', fontSize: 13 }}>out of 5</span>
-                </div>
-              ) : (
-                <div style={{ color: 'var(--text2)', fontSize: 14 }}>
-                  No ratings yet for this store
-                </div>
-              )}
+              <h2 style={{ fontSize: 19, fontWeight: 700, marginBottom: 6 }}>{user.name}</h2>
+              {roleBadge(user.role)}
             </div>
-          </>
-        )}
+          </div>
+
+          {/* Details */}
+          {details.map(({ label, value }) => (
+            <div key={label} style={{
+              marginBottom: 16, paddingBottom: 16,
+              borderBottom: '1px solid var(--border)',
+            }}>
+              <div style={{
+                fontSize: 10, color: 'var(--text2)', marginBottom: 5,
+                textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700,
+              }}>
+                {label}
+              </div>
+              <div style={{ fontSize: 14.5, color: 'var(--text)', fontWeight: 500 }}>{value}</div>
+            </div>
+          ))}
+
+          {/* Store owner info */}
+          {user.role === 'store_owner' && (
+            <>
+              <div style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
+                <div style={{
+                  fontSize: 10, color: 'var(--text2)', marginBottom: 5,
+                  textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700,
+                }}>Store Name</div>
+                <div style={{ fontSize: 14.5, fontWeight: 500 }}>
+                  {user.store_name || <span style={{ color: 'var(--text3)' }}>No store assigned</span>}
+                </div>
+              </div>
+
+              <div>
+                <div style={{
+                  fontSize: 10, color: 'var(--text2)', marginBottom: 10,
+                  textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700,
+                }}>Store Rating</div>
+                {user.avg_rating ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ display: 'flex', gap: 3 }}>
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <span key={i} style={{
+                          color: i <= Math.round(user.avg_rating) ? 'var(--yellow)' : 'var(--border)',
+                          fontSize: 22
+                        }}>★</span>
+                      ))}
+                    </div>
+                    <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Plus Jakarta Sans' }}>
+                      {user.avg_rating}
+                    </span>
+                    <span style={{ color: 'var(--text2)', fontSize: 13 }}>/ 5</span>
+                  </div>
+                ) : (
+                  <div style={{ color: 'var(--text3)', fontSize: 14 }}>No ratings yet</div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

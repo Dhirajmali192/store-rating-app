@@ -10,44 +10,81 @@ export default function AdminDashboard() {
     api.get('/admin/dashboard').then(r => setStats(r.data)).catch(() => toast.error('Failed to load stats'));
   }, []);
 
+  const statCards = [
+    { icon: '◎', label: 'Total Users', value: stats?.totalUsers, color: '#8aabff' },
+    { icon: '◈', label: 'Total Stores', value: stats?.totalStores, color: '#22d67a' },
+    { icon: '★', label: 'Total Ratings', value: stats?.totalRatings, color: '#ffc846' },
+  ];
+
+  const quickActions = [
+    {
+      to: '/admin/users',
+      icon: '◎',
+      title: 'Manage Users',
+      desc: 'View, filter, and inspect all platform users',
+    },
+    {
+      to: '/admin/stores',
+      icon: '◈',
+      title: 'Manage Stores',
+      desc: 'Browse stores and monitor ratings',
+    },
+    {
+      to: '/admin/users/add',
+      icon: '+',
+      title: 'Add User',
+      desc: 'Create a new user account',
+    },
+    {
+      to: '/admin/stores/add',
+      icon: '⊕',
+      title: 'Add Store',
+      desc: 'Register a new store on the platform',
+    },
+  ];
+
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Dashboard</h1>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div>
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-subtitle">Platform overview and quick actions</p>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
           <Link to="/admin/users/add" className="btn btn-primary btn-sm">+ Add User</Link>
           <Link to="/admin/stores/add" className="btn btn-secondary btn-sm">+ Add Store</Link>
         </div>
       </div>
 
+      {/* Stats */}
       <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-value">{stats ? stats.totalUsers : '—'}</div>
-          <div className="stat-label">Total Users</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats ? stats.totalStores : '—'}</div>
-          <div className="stat-label">Total Stores</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats ? stats.totalRatings : '—'}</div>
-          <div className="stat-label">Total Ratings</div>
-        </div>
+        {statCards.map(({ icon, label, value, color }) => (
+          <div key={label} className="stat-card">
+            <span className="stat-icon" style={{ color }}>{icon}</span>
+            <div className="stat-value" style={{ color }}>
+              {value !== undefined ? value.toLocaleString() : (
+                <span style={{ fontSize: 28 }}>—</span>
+              )}
+            </div>
+            <div className="stat-label">{label}</div>
+          </div>
+        ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-        <Link to="/admin/users" style={{ textDecoration: 'none' }}>
-          <div className="card" style={{ cursor: 'pointer', transition: 'border 0.2s', ':hover': { borderColor: 'var(--accent)' } }}>
-            <h3 style={{ marginBottom: 8 }}>👥 Manage Users</h3>
-            <p style={{ color: 'var(--text2)', fontSize: 14 }}>View and manage all users on the platform</p>
-          </div>
-        </Link>
-        <Link to="/admin/stores" style={{ textDecoration: 'none' }}>
-          <div className="card" style={{ cursor: 'pointer' }}>
-            <h3 style={{ marginBottom: 8 }}>🏪 Manage Stores</h3>
-            <p style={{ color: 'var(--text2)', fontSize: 14 }}>View stores and their ratings</p>
-          </div>
-        </Link>
+      {/* Quick actions */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 14 }}>
+          Quick Actions
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+          {quickActions.map(({ to, icon, title, desc }) => (
+            <Link key={to} to={to} className="action-card">
+              <span className="action-card-icon" style={{ color: 'var(--accent)' }}>{icon}</span>
+              <div className="action-card-title">{title}</div>
+              <div className="action-card-desc">{desc}</div>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

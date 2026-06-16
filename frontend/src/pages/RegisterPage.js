@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
-// ✅ Moved OUTSIDE the main component — this fixes the cursor losing focus bug
-const Field = ({ name, label, type = 'text', placeholder, value, onChange, error }) => (
+const Field = ({ name, label, type = 'text', placeholder, value, onChange, error, hint }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
     <input
@@ -15,6 +14,7 @@ const Field = ({ name, label, type = 'text', placeholder, value, onChange, error
       onChange={onChange}
       placeholder={placeholder}
     />
+    {hint && !error && <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>{hint}</p>}
     {error && <p className="form-error">{error}</p>}
   </div>
 );
@@ -30,16 +30,11 @@ export default function RegisterPage() {
 
   const validate = () => {
     const errs = {};
-    if (form.name.length < 20 || form.name.length > 60)
-      errs.name = 'Name must be 20–60 characters';
-    if (form.address.length > 400)
-      errs.address = 'Address max 400 characters';
-    if (form.password.length < 8 || form.password.length > 16)
-      errs.password = 'Password must be 8–16 characters';
-    else if (!/[A-Z]/.test(form.password))
-      errs.password = 'Password must contain an uppercase letter';
-    else if (!/[!@#$%^&*(),.?":{}|<>]/.test(form.password))
-      errs.password = 'Password must contain a special character';
+    if (form.name.length < 20 || form.name.length > 60) errs.name = 'Name must be 20–60 characters';
+    if (form.address.length > 400) errs.address = 'Address max 400 characters';
+    if (form.password.length < 8 || form.password.length > 16) errs.password = 'Password must be 8–16 characters';
+    else if (!/[A-Z]/.test(form.password)) errs.password = 'Must contain at least one uppercase letter';
+    else if (!/[!@#$%^&*(),.?":{}|<>]/.test(form.password)) errs.password = 'Must contain at least one special character';
     return errs;
   };
 
@@ -51,7 +46,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(form);
-      toast.success('Account created!');
+      toast.success('Account created! Welcome to RateStore.');
       navigate('/stores');
     } catch (err) {
       const serverErrs = err.response?.data?.errors;
@@ -69,62 +64,94 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card card">
-        <h1 className="auth-title">Create Account</h1>
-        <p className="auth-subtitle">Join RateStore and start rating stores</p>
+      <div style={{ width: '100%', maxWidth: 460 }}>
+        <div className="auth-brand">
+          <div className="auth-brand-icon">★</div>
+          <div className="auth-brand-name">RateStore</div>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <Field
-            name="name"
-            label="Full Name (20–60 chars)"
-            placeholder="Your full name here..."
-            value={form.name}
-            onChange={handleChange}
-            error={errors.name}
-          />
-          <Field
-            name="email"
-            label="Email"
-            type="email"
-            placeholder="you@example.com"
-            value={form.email}
-            onChange={handleChange}
-            error={errors.email}
-          />
-          <Field
-            name="address"
-            label="Address (optional)"
-            placeholder="Your address..."
-            value={form.address}
-            onChange={handleChange}
-            error={errors.address}
-          />
-          <Field
-            name="password"
-            label="Password (8–16 chars, 1 uppercase, 1 special)"
-            type="password"
-            placeholder="••••••••"
-            value={form.password}
-            onChange={handleChange}
-            error={errors.password}
-          />
+        <div className="card">
+          <h1 className="auth-title">Create account</h1>
+          <p className="auth-subtitle">Join the platform and start rating stores</p>
 
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={loading}
-            style={{ width: '100%', justifyContent: 'center', padding: 14 }}
-          >
-            {loading ? 'Creating...' : 'Create Account'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <Field
+              name="name"
+              label="Full Name"
+              placeholder="Enter your full name"
+              value={form.name}
+              onChange={handleChange}
+              error={errors.name}
+              hint="Between 20 and 60 characters"
+            />
+            <Field
+              name="email"
+              label="Email Address"
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={handleChange}
+              error={errors.email}
+            />
+            <Field
+              name="address"
+              label="Address"
+              placeholder="Your address (optional)"
+              value={form.address}
+              onChange={handleChange}
+              error={errors.address}
+              hint="Up to 400 characters"
+            />
+            <Field
+              name="password"
+              label="Password"
+              type="password"
+              placeholder="Create a strong password"
+              value={form.password}
+              onChange={handleChange}
+              error={errors.password}
+              hint="8–16 chars · 1 uppercase · 1 special character"
+            />
 
-        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--text2)' }}>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: 'var(--accent2)', textDecoration: 'none', fontWeight: 600 }}>
-            Sign in
-          </Link>
-        </p>
+            {/* Password strength indicator */}
+            {form.password.length > 0 && (
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ display: 'flex', gap: 4, marginBottom: 5 }}>
+                  {[
+                    form.password.length >= 8,
+                    /[A-Z]/.test(form.password),
+                    /[!@#$%^&*(),.?":{}|<>]/.test(form.password),
+                    form.password.length >= 12,
+                  ].map((met, i) => (
+                    <div key={i} style={{
+                      flex: 1, height: 3, borderRadius: 2,
+                      background: met ? 'var(--green)' : 'var(--border)',
+                      transition: 'background 0.2s',
+                    }} />
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text3)' }}>Password strength</div>
+              </div>
+            )}
+
+            <button
+              className="btn btn-primary btn-lg"
+              type="submit"
+              disabled={loading}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              {loading ? 'Creating account...' : 'Create Account'}
+            </button>
+          </form>
+
+          <div className="auth-divider">already a member</div>
+
+          <p style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--text2)' }}>
+            <Link to="/login" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>
+              ← Back to sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
